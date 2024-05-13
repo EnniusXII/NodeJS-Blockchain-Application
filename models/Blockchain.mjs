@@ -4,12 +4,13 @@ import { createHashFunction } from "../utilities/crypto-lib.mjs";
 export default class Blockchain {
     constructor() {
         this.chain = [];
-        this.createBlock("0", "Genesis", [])
+        this.createBlock(Date.now(), "0", "Genesis", [])
     };
 
-    createBlock(previousHash, currentHash, data) {
+    createBlock(timestamp, previousHash, currentHash, data) {
 
         const block = new Block(
+            timestamp,
             this.chain.length +1, 
             previousHash, 
             currentHash, 
@@ -24,8 +25,8 @@ export default class Blockchain {
         return this.chain.at(-1)
     };
 
-    hashBlock(previousHash, currentBlockData){
-        const stringToHash = previousHash + JSON.stringify(currentBlockData);
+    hashBlock(timestamp, previousHash, currentBlockData){
+        const stringToHash = timestamp.toString() + previousHash + JSON.stringify(currentBlockData);
         return createHashFunction(stringToHash);
     };
 }
