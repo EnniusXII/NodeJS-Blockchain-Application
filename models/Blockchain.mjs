@@ -4,17 +4,18 @@ import { createHashFunction } from "../utilities/crypto-lib.mjs";
 export default class Blockchain {
     constructor() {
         this.chain = [];
-        this.createBlock(Date.now(), "0", "Genesis", [])
+        this.createBlock(Date.now(), "0", "Genesis", [], process.env.DIFFICULTY)
     };
 
-    createBlock(timestamp, previousHash, currentHash, data) {
+    createBlock(timestamp, previousHash, currentHash, data, difficulty) {
 
         const block = new Block(
             timestamp,
             this.chain.length +1, 
             previousHash, 
             currentHash, 
-            data
+            data,
+            difficulty
         );
 
         this.chain.push(block);
@@ -25,20 +26,33 @@ export default class Blockchain {
         return this.chain.at(-1)
     };
 
-    hashBlock(timestamp, previousHash, currentBlockData, nonce){
-        const stringToHash = timestamp.toString() + previousHash + JSON.stringify(currentBlockData) + nonce;
+    hashBlock(timestamp, previousHash, currentBlockData, nonce, difficulty){
+        const stringToHash = timestamp.toString() + previousHash + JSON.stringify(currentBlockData) + nonce + difficulty;
         return createHashFunction(stringToHash);
     };
 
-    proofOfWork(timestamp, previousHash, data) {
+    proofOfWork(previousHash, data) {
+        const lastBlock = this.getLastBlockObject();
+        let difficulty, hash, timestamp;
         let nonce = 0;
-        let hash = this.hashBlock(timestamp, previousHash, data, nonce)
 
-        while (hash.substring(0, 4) !== "0000") {
+        do {
             nonce++
-            hash = this.hashBlock(timestamp, previousHash, data, nonce);
-        };
+            timestamp = Date.now()
 
-        return nonce;
-    };
+            difficulty = this.difficultyAdjustment(lastBlock, timestamp)
+            hash = this.hashBlock(timestamp, previousHash, data, nonce, difficulty)
+        } while (hash.substring(0, difficulty) !== '0'.repeat(difficulty))
+
+        return { nonce, difficulty, timestamp }
+    }
+
+    difficultyAdjustment(lastBlock, timestamp) {
+        const MINE_RATE = process.env.MINE_RATE;
+        let { difficulty } = lastBlock;
+
+        if (difficulty < 1) return 1;
+
+        return timestamp - lastBlock.timestamp > MINE_RATE ? +difficulty - 1 : +difficulty + 1
+    }
 }
