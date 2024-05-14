@@ -25,8 +25,20 @@ export default class Blockchain {
         return this.chain.at(-1)
     };
 
-    hashBlock(timestamp, previousHash, currentBlockData){
-        const stringToHash = timestamp.toString() + previousHash + JSON.stringify(currentBlockData);
+    hashBlock(timestamp, previousHash, currentBlockData, nonce){
+        const stringToHash = timestamp.toString() + previousHash + JSON.stringify(currentBlockData) + nonce;
         return createHashFunction(stringToHash);
+    };
+
+    proofOfWork(timestamp, previousHash, data) {
+        let nonce = 0;
+        let hash = this.hashBlock(timestamp, previousHash, data, nonce)
+
+        while (hash.substring(0, 4) !== "0000") {
+            nonce++
+            hash = this.hashBlock(timestamp, previousHash, data, nonce);
+        };
+
+        return nonce;
     };
 }
