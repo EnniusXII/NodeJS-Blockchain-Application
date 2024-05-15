@@ -4,6 +4,8 @@ import { createHashFunction } from "../utilities/crypto-lib.mjs";
 export default class Blockchain {
     constructor() {
         this.chain = [];
+        this.memberNodes = [];
+        this.nodeUrl = process.argv[3];
         this.createBlock(Date.now(), "0", "Genesis", [], process.env.DIFFICULTY)
     };
 
