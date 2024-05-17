@@ -4,15 +4,39 @@ const getBlockchain = (req, res, next) => {
     res.status(200).json({success: true, data: blockchain})
 };
 
-const createBlock = (req, res, next) => {
+const createBlock = async (req, res, next) => {
     const previousBlock = blockchain.getLastBlockObject();
     const data = req.body
     const { nonce, difficulty, timestamp } = blockchain.proofOfWork(previousBlock.currentHash, data);
-    console.log(previousBlock);
 
     const currentBlockHash = blockchain.hashBlock(timestamp, previousBlock.currentHash, data, nonce, difficulty);
     const block = blockchain.createBlock(timestamp, previousBlock.currentHash, currentBlockHash, data, nonce, difficulty);
-    res.status(201).json({success: true, data: block});
+
+    blockchain.memberNodes.forEach(async(url) => {
+        const body = block;
+        await fetch(`${url}/api/v1/blockchain/block/broadcast`, {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        });
+    });
+    res.status(201).json({success: true, data: {message: "Block created and distributed", block}});
+};
+
+const updateBlockchain = (req, res, next) => {
+    const block = req.body;
+    const previousBlock = blockchain.getLastBlockObject();
+    const hash = previousBlock.currentHash === block.previousHash;
+    const index = previousBlock.blockIndex +1 === block.blockIndex;
+
+    if (hash && index) {
+        blockchain.chain.push(block);
+        res.status(201).json({success: true, data: {message: "Blockchain updated with latest block"}});
+    } else {
+        res.status(500).json({success: false, data: {message: "Latest block was rejected"}});
+    }
 };
 
 const syncBlockchain = (req, res, next) => {
@@ -40,5 +64,6 @@ const syncBlockchain = (req, res, next) => {
     })
 
     res.status(200).json({success: true, data: {message: "Sync complete"}});
-}
-export {getBlockchain, createBlock, syncBlockchain}
+};
+
+export {getBlockchain, createBlock, syncBlockchain, updateBlockchain}
