@@ -6,10 +6,10 @@ export default class Blockchain {
         this.chain = [];
         this.memberNodes = [];
         this.nodeUrl = process.argv[3];
-        this.createBlock(Date.now(), "0", "Genesis", [], process.env.DIFFICULTY)
+        this.createBlock(Date.now(), "0", "Genesis", [], 32, process.env.DIFFICULTY)
     };
 
-    createBlock(timestamp, previousHash, currentHash, data, difficulty) {
+    createBlock(timestamp, previousHash, currentHash, data, nonce, difficulty) {
 
         const block = new Block(
             timestamp,
@@ -17,6 +17,7 @@ export default class Blockchain {
             previousHash, 
             currentHash, 
             data,
+            nonce,
             difficulty
         );
 
@@ -56,5 +57,27 @@ export default class Blockchain {
         if (difficulty < 1) return 1;
 
         return timestamp - lastBlock.timestamp > MINE_RATE ? +difficulty - 1 : +difficulty + 1
+    }
+
+    validateBlockchain(blockchain) {
+        let isValid = true;
+
+        for(let i = 1; i < blockchain.length; i++){
+            const currentBlock = blockchain[i];
+            const previousBlock = blockchain[i - 1];
+
+            const hash = this.hashBlock(
+                currentBlock.timestamp, 
+                previousBlock.currentHash, 
+                currentBlock.data,
+                currentBlock.nonce,
+                currentBlock.difficulty
+            );
+
+            if(hash !== currentBlock.currentHash) isValid = false;
+            if(currentBlock.previousHash !== previousBlock.currentHash) isValid = false;
+        }
+
+        return isValid;
     }
 }
