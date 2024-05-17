@@ -5,12 +5,13 @@ const getBlockchain = (req, res, next) => {
 };
 
 const createBlock = (req, res, next) => {
-    const lastBlock = blockchain.getLastBlockObject();
+    const previousBlock = blockchain.getLastBlockObject();
     const data = req.body
-    const { nonce, difficulty, timestamp } = blockchain.proofOfWork(lastBlock.currentHash, data);
+    const { nonce, difficulty, timestamp } = blockchain.proofOfWork(previousBlock.currentHash, data);
+    console.log(previousBlock);
 
-    const currentBlockHash = blockchain.hashBlock(timestamp, lastBlock.currentHash, data, nonce, difficulty);
-    const block = blockchain.createBlock(timestamp, lastBlock.currentHash, currentBlockHash, data, nonce, difficulty);
+    const currentBlockHash = blockchain.hashBlock(timestamp, previousBlock.currentHash, data, nonce, difficulty);
+    const block = blockchain.createBlock(timestamp, previousBlock.currentHash, currentBlockHash, data, nonce, difficulty);
     res.status(201).json({success: true, data: block});
 };
 
@@ -30,7 +31,7 @@ const syncBlockchain = (req, res, next) => {
                 longestChain = result.data.chain;
             }
 
-            if(!longestChain) {
+            if(!longestChain || (longestChain && !blockchain.validateBlockchain(longestChain))) {
                 console.log("Chain is now syncronizing");
             } else {
                 blockchain.chain = longestChain

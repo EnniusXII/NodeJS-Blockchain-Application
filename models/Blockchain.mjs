@@ -62,20 +62,30 @@ export default class Blockchain {
     validateBlockchain(blockchain) {
         let isValid = true;
 
-        for(let i = 1; i < blockchain.length; i++){
+        for(let i = 2; i < blockchain.length; i++){
             const currentBlock = blockchain[i];
             const previousBlock = blockchain[i - 1];
+            console.log(currentBlock);
 
             const hash = this.hashBlock(
                 currentBlock.timestamp, 
-                previousBlock.currentHash, 
+                currentBlock.previousHash, 
                 currentBlock.data,
                 currentBlock.nonce,
                 currentBlock.difficulty
             );
+            console.log("Timestamp:", currentBlock.timestamp);
+            console.log("previousHash:", currentBlock.previousHash);
+            console.log("data:", currentBlock.data);
+            console.log("nonce:", currentBlock.nonce);
+            console.log("difficulty:", currentBlock.difficulty);
 
+            console.log("Hash number:", hash);
             if(hash !== currentBlock.currentHash) isValid = false;
             if(currentBlock.previousHash !== previousBlock.currentHash) isValid = false;
+            console.log("Current hash:", currentBlock.currentHash);
+            console.log("Previous hash:", currentBlock.previousHash);
+            console.log("Previous block current hash:", previousBlock.currentHash);
         }
 
         return isValid;
