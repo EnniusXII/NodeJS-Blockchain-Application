@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.mjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest",
     "dev": "nodemon --env-file=config/config.env server.mjs",
     "node1": "nodemon server.mjs 5001 http://localhost:5001",
     "node2": "nodemon server.mjs 5002 http://localhost:5002"
