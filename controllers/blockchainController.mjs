@@ -1,5 +1,6 @@
 import { blockchain } from "../startup.mjs";
 import ResponseModel from "../utilities/ResponseModel.mjs";
+import writeFileToJson from "../utilities/fileHandler.mjs";
 
 const getBlockchain = (req, res, next) => {
     res.status(200).json(new ResponseModel({statusCode: 200, data: blockchain}))
@@ -23,6 +24,9 @@ const createBlock = async (req, res, next) => {
         },
         });
     });
+
+    writeFileToJson('data', 'blockchain.json', (blockchain.chain));
+
     res.status(201).json(new ResponseModel({statusCode: 201, data: {message: "Block created and distributed", block}}));
 };
 
