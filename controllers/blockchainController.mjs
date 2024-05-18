@@ -1,7 +1,8 @@
 import { blockchain } from "../startup.mjs";
+import ResponseModel from "../utilities/ResponseModel.mjs";
 
 const getBlockchain = (req, res, next) => {
-    res.status(200).json({success: true, data: blockchain})
+    res.status(200).json(new ResponseModel({statusCode: 200, data: blockchain}))
 };
 
 const createBlock = async (req, res, next) => {
@@ -22,7 +23,7 @@ const createBlock = async (req, res, next) => {
         },
         });
     });
-    res.status(201).json({success: true, data: {message: "Block created and distributed", block}});
+    res.status(201).json(new ResponseModel({statusCode: 201, data: {message: "Block created and distributed", block}}));
 };
 
 const updateBlockchain = (req, res, next) => {
@@ -33,9 +34,9 @@ const updateBlockchain = (req, res, next) => {
 
     if (hash && index) {
         blockchain.chain.push(block);
-        res.status(201).json({success: true, data: {message: "Blockchain updated with latest block"}});
+        res.status(201).json(new ResponseModel({statusCode: 201, data: {message: "Blockchain updated with latest block"}}));
     } else {
-        res.status(500).json({success: false, data: {message: "Latest block was rejected"}});
+        res.status(500).json(new ResponseModel({statusCode: 500, data: {message: "Latest block was rejected"}}));
     }
 };
 
@@ -63,7 +64,7 @@ const syncBlockchain = (req, res, next) => {
         }
     })
 
-    res.status(200).json({success: true, data: {message: "Sync complete"}});
+    res.status(200).json(new ResponseModel({statusCode: 200, data: {message: "Sync complete"}}));
 };
 
 export {getBlockchain, createBlock, syncBlockchain, updateBlockchain}

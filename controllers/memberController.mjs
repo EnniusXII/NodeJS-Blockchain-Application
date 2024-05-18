@@ -1,7 +1,8 @@
 import { blockchain } from "../startup.mjs";
+import ResponseModel from "../utilities/ResponseModel.mjs";
 
 export const listMembers = (req, res, next) => {
-    res.status(200).json({success: true, data: blockchain.memberNodes})
+    res.status(200).json(new ResponseModel({statusCode: 200, data: blockchain.memberNodes}))
 };
 
 export const registerMember = (req, res, next) => {
@@ -11,9 +12,9 @@ export const registerMember = (req, res, next) => {
         blockchain.memberNodes.push(member.nodeUrl);
         syncMembers(member.nodeUrl);
 
-        res.status(201).json({success: true, data: {message: `Member ${req.body.nodeUrl} is registered`}});
+        res.status(201).json(new ResponseModel({statusCode: 201, data: {message: `Member ${req.body.nodeUrl} is registered`}}));
     } else {
-        res.status(400).json({success: false, data: {message: `Member ${member.nodeUrl} is already registered`}});
+        res.status(400).json(new ResponseModel({statusCode: 400, data: {message: `Member ${member.nodeUrl} is already registered`}}));
     }
 };
 
