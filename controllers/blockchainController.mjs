@@ -14,6 +14,8 @@ const createBlock = async (req, res, next) => {
     const currentBlockHash = blockchain.hashBlock(timestamp, previousBlock.currentHash, data, nonce, difficulty);
     const block = blockchain.createBlock(timestamp, previousBlock.currentHash, currentBlockHash, data, nonce, difficulty);
 
+    writeFileToJson('data', 'blockchain.json', (blockchain.chain));
+
     blockchain.memberNodes.forEach(async(url) => {
         const body = block;
         await fetch(`${url}/api/v1/blockchain/block/broadcast`, {
@@ -24,8 +26,6 @@ const createBlock = async (req, res, next) => {
         },
         });
     });
-
-    writeFileToJson('data', 'blockchain.json', (blockchain.chain));
 
     res.status(201).json(new ResponseModel({statusCode: 201, data: {message: "Block created and distributed", block}}));
 };
